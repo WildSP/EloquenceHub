@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="icon2.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Prompt Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+            overflow: hidden;
+            text-align: center;
+            position: relative;
+        }
+
+        .logo-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            transition: transform 0.5s ease;
+        }
+
+        .logo-container img {
+            width: 150px;
+            height: auto;
+            transition: transform 0.5s ease;
+        }
+
+        .logo-container:hover img {
+            transform: scale(1.1);
+        }
+
+        .black-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .logo-container.clicked img {
+            transform: scale(3);
+        }
+
+        .container {
+            position: relative;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .prompt {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            white-space: normal;
+            word-break: break-word;
+            overflow: hidden;
+            border-right: 3px solid black;
+            min-height: 60px;
+        }
+
+        .done-message {
+            font-size: 32px;
+            color: green;
+            font-weight: bold;
+            display: none;
+        }
+
+        .image-box {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            transition: filter 0.3s ease;
+        }
+
+        .image-box img {
+            width: auto;
+            height: 100px;
+        }
+
+        .image-box:hover {
+            filter: brightness(0.7);
+        }
+    
+    .timer-container {
+    position: absolute;
+    top: 20px; /* Keeps it near the top */
+    left: 50%; /* Centers it horizontally */
+    transform: translateX(-50%); /* Ensures it's exactly centered */
+    text-align: center;
+    background: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+    </style>
+</head>
+<body>
+    <!-- Timer Section -->
+    <div class="timer-container">
+        <div class="timer" id="timerDisplay">00:00</div>
+        <div class="timer-buttons">
+            <button onclick="startTimer(60)">1 Min</button>
+            <button onclick="startTimer(30)">30 Sec</button>
+            <input type="number" id="customTime" min="1" placeholder="Sec">
+            <button onclick="startCustomTimer()">Start</button>
+        </div>
+    </div>
+
+    <script>
+        let timer;
+        function startTimer(seconds) {
+            clearInterval(timer);
+            let timeLeft = seconds;
+            updateTimerDisplay(timeLeft);
+
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay(timeLeft);
+
+                if (timeLeft <= 0) clearInterval(timer);
+            }, 1000);
+        }
+
+        function startCustomTimer() {
+            let customSec = parseInt(document.getElementById('customTime').value);
+            if (customSec > 0) startTimer(customSec);
+        }
+
+        function updateTimerDisplay(time) {
+            document.getElementById('timerDisplay').textContent = `${Math.floor(time / 60)}:${String(time % 60).padStart(2, '0')}`;
+        }
+    </script>
+
+    <div class="black-overlay" id="overlay"></div>
+
+    <div class="logo-container" id="logoContainer">
+        <img src="LOGO.png" alt="Logo">
+    </div>
+
+    <div class="container">
+        <div class="prompt" id="prompt"></div>
+        <div class="done-message" id="doneMessage">DONE!!</div>
+    </div>
+
+    <div class="image-box" id="imageBox">
+        <img src="next.png" alt="Next Image">
+    </div>
+
+    <script>
+        const prompts = [
+            "Should nuclear weapons be completely abolished worldwide?",
+            "Is military intervention justified to protect human rights?",
+            "Should countries prioritize national security over individual freedoms?",
+            "Is the United Nations effective in preventing global conflicts?",
+            "Should colonial powers be held financially accountable for past exploitation?",
+            "Is democracy under threat in the modern world?",
+            "Should international borders be open to all refugees?",
+            "Are economic sanctions ethical or just another form of warfare?",
+            "Should countries prioritize domestic issues over international aid?",
+            "Is global governance a viable alternative to national sovereignty?",
+            "Is mass surveillance a violation of human rights?",
+            "Should governments have the right to suspend free speech during crises?",
+            "Are sweatshops ever morally justifiable?",
+            "Should people be allowed to sell their organs?",
+            "Is it ethical to use AI for military purposes?",
+            "Should prisoners have the right to vote?",
+            "Is forced sterilization ever justified?",
+            "Should sex work be fully legalized and regulated?",
+            "Is cancel culture a form of social justice or mob rule?",
+            "Should religious institutions be taxed?",
+            "Should scientists have the right to create artificial life?",
+            "Is artificial intelligence a bigger threat than nuclear weapons?",
+            "Should human genetic engineering be banned?",
+            "Is it ethical to create sentient robots?",
+            "Should humans attempt to colonize other planets?",
+            "Will artificial superintelligence make humans obsolete?",
+            "Is immortality a realistic and ethical goal of science?",
+            "Should governments regulate the development of AI more strictly?",
+            "Are brain-computer interfaces a violation of personal autonomy?",
+            "Should medical research prioritize curing aging over disease?",
+            "Should vaccines be mandatory for all citizens?",
+            "Is euthanasia a basic human right?",
+            "Should healthcare be entirely free and funded by the government?",
+            "Is the pharmaceutical industry guilty of exploiting the sick for profit?",
+            "Should the use of performance-enhancing drugs in sports be completely decriminalized?",
+            "Should there be limits on life-extending medical treatments?",
+            "Is obesity a personal responsibility or a societal failure?",
+            "Should medical experiments on animals be completely banned?",
+            "Are anti-vaccine movements a threat to public safety?",
+            "Should organ transplants be prioritized based on lifestyle choices?",
+            "Is climate change an existential threat to human civilization?",
+            "Should humanity focus on space exploration as a backup plan for Earth?",
+            "Are pandemics the biggest threat to global stability?",
+            "Should we invest more in asteroid defense systems?",
+            "Is human overpopulation a crisis that needs immediate intervention?",
+            "Should humanity develop a plan to prevent AI from surpassing human intelligence?",
+            "Will automation and AI lead to the collapse of capitalism?",
+            "Is the pursuit of technological progress making humans less happy?",
+            "Should there be global regulations for biotechnology advancements?",
+            "Will future wars be fought over water rather than oil?"
+        ];
+
+        let usedPrompts = [];
+        const promptElement = document.getElementById('prompt');
+        const doneMessage = document.getElementById('doneMessage');
+        const imageBox = document.getElementById('imageBox');
+        const overlay = document.getElementById('overlay');
+        const logoContainer = document.getElementById('logoContainer');
+
+        function typeEffect(text, callback) {
+            let i = 0;
+            promptElement.textContent = ''; // Clear previous text
+
+            function typeNextChar() {
+                if (i < text.length) {
+                    promptElement.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(typeNextChar, 15); // Faster typing speed
+                } else if (callback) {
+                    setTimeout(callback, text.length * 15); // Pause before deleting (faster deletion speed)
+                }
+            }
+            typeNextChar();
+        }
+
+        function deleteEffect(callback) {
+            let text = promptElement.textContent;
+
+            function deleteNextChar() {
+                if (text.length > 0) {
+                    text = text.slice(0, -1);
+                    promptElement.textContent = text;
+                    setTimeout(deleteNextChar, 5); // Faster deletion speed
+                } else if (callback) {
+                    callback();
+                }
+            }
+            deleteNextChar();
+        }
+
+        function getRandomPrompt() {
+            if (usedPrompts.length === prompts.length) {
+                doneMessage.style.display = 'block';
+                return;
+            }
+
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * prompts.length);
+            } while (usedPrompts.includes(randomIndex));
+
+            usedPrompts.push(randomIndex);
+
+            deleteEffect(() => {
+                typeEffect(prompts[randomIndex]);
+            });
+        }
+
+        getRandomPrompt(); // Load initial prompt
+
+        imageBox.addEventListener('click', getRandomPrompt);
+
+        logoContainer.addEventListener('click', function () {
+            logoContainer.classList.add('clicked');
+            overlay.style.opacity = 1;
+            overlay.style.pointerEvents = 'auto';
+
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 800);
+        });
+    </script>
+
+</body>
+</html>

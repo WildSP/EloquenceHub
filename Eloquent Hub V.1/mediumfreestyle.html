@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="icon2.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Prompt Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+            overflow: hidden;
+            text-align: center;
+            position: relative;
+        }
+
+        .logo-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            transition: transform 0.5s ease;
+        }
+
+        .logo-container img {
+            width: 150px;
+            height: auto;
+            transition: transform 0.5s ease;
+        }
+
+        .logo-container:hover img {
+            transform: scale(1.1);
+        }
+
+        .black-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .logo-container.clicked img {
+            transform: scale(3);
+        }
+
+        .container {
+            position: relative;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .prompt {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            white-space: normal;
+            word-break: break-word;
+            overflow: hidden;
+            border-right: 3px solid black;
+            min-height: 60px;
+        }
+
+        .done-message {
+            font-size: 32px;
+            color: green;
+            font-weight: bold;
+            display: none;
+        }
+
+        .image-box {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            transition: filter 0.3s ease;
+        }
+
+        .image-box img {
+            width: auto;
+            height: 100px;
+        }
+
+        .image-box:hover {
+            filter: brightness(0.7);
+        }
+    
+    .timer-container {
+    position: absolute;
+    top: 20px; /* Keeps it near the top */
+    left: 50%; /* Centers it horizontally */
+    transform: translateX(-50%); /* Ensures it's exactly centered */
+    text-align: center;
+    background: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+    </style>
+</head>
+<body>
+    <!-- Timer Section -->
+    <div class="timer-container">
+        <div class="timer" id="timerDisplay">00:00</div>
+        <div class="timer-buttons">
+            <button onclick="startTimer(60)">1 Min</button>
+            <button onclick="startTimer(30)">30 Sec</button>
+            <input type="number" id="customTime" min="1" placeholder="Sec">
+            <button onclick="startCustomTimer()">Start</button>
+        </div>
+    </div>
+
+    <script>
+        let timer;
+        function startTimer(seconds) {
+            clearInterval(timer);
+            let timeLeft = seconds;
+            updateTimerDisplay(timeLeft);
+
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay(timeLeft);
+
+                if (timeLeft <= 0) clearInterval(timer);
+            }, 1000);
+        }
+
+        function startCustomTimer() {
+            let customSec = parseInt(document.getElementById('customTime').value);
+            if (customSec > 0) startTimer(customSec);
+        }
+
+        function updateTimerDisplay(time) {
+            document.getElementById('timerDisplay').textContent = `${Math.floor(time / 60)}:${String(time % 60).padStart(2, '0')}`;
+        }
+    </script>
+
+    <div class="black-overlay" id="overlay"></div>
+
+    <div class="logo-container" id="logoContainer">
+        <img src="LOGO.png" alt="Logo">
+    </div>
+
+    <div class="container">
+        <div class="prompt" id="prompt"></div>
+        <div class="done-message" id="doneMessage">DONE!!</div>
+    </div>
+
+    <div class="image-box" id="imageBox">
+        <img src="next.png" alt="Next Image">
+    </div>
+
+    <script>
+        const prompts = [
+            "Should the death penalty be abolished worldwide?",
+            "Is democracy the best form of government?",
+            "Should voting rights be given to 16-year-olds?",
+            "Are governments responsible for ensuring universal healthcare?",
+            "Should political ads be banned from social media?",
+            "Is nationalism harmful to global cooperation?",
+            "Should all countries adopt a universal basic income?",
+            "Is it ethical for governments to use mass surveillance?",
+            "Should election campaigns have a spending limit?",
+            "Is monarchy still relevant in the modern world?",
+            "Should freedom of speech have limitations?",
+            "Is prison meant for punishment or rehabilitation?",
+            "Should drug use be decriminalized?",
+            "Should hate speech be legally punished?",
+            "Are whistleblowers heroes or criminals?",
+            "Should abortion be legal worldwide?",
+            "Is capital punishment a violation of human rights?",
+            "Should the legal drinking age be lowered or raised?",
+            "Are curfews for teenagers a violation of personal freedom?",
+            "Should all forms of discrimination be treated as crimes?",
+            "Should billionaires exist in a world with poverty?",
+            "Are labor unions necessary for protecting workers?",
+            "Should the minimum wage be tied to inflation?",
+            "Is universal free college education economically sustainable?",
+            "Should large corporations pay more taxes?",
+            "Is cryptocurrency the future of global finance?",
+            "Should governments regulate artificial intelligence in business?",
+            "Is consumerism damaging to society?",
+            "Should companies be responsible for their environmental impact?",
+            "Is remote work better for productivity than office work?",
+            "Should artificial intelligence have rights?",
+            "Is space exploration worth the cost?",
+            "Should genetically modified organisms (GMOs) be banned?",
+            "Is nuclear energy a sustainable solution for the future?",
+            "Should we legalize human cloning for medical purposes?",
+            "Is technology making people more socially isolated?",
+            "Should social media companies be held accountable for misinformation?",
+            "Is artificial intelligence more dangerous than beneficial?",
+            "Should scientists have the right to experiment on embryos?",
+            "Will automation cause more harm than good to the job market?",
+            "Should fossil fuels be banned immediately?",
+            "Is individual action enough to fight climate change?",
+            "Should governments enforce population control to conserve resources?",
+            "Are electric cars truly better for the environment?",
+            "Should companies be fined for excessive waste production?",
+            "Is veganism the only ethical diet?",
+            "Should we prioritize nature conservation over economic growth?",
+            "Are carbon taxes an effective solution to climate change?",
+            "Should plastic be completely banned worldwide?",
+            "Is global warming an immediate existential threat?",
+            "Should financial literacy be a mandatory school subject?",
+            "Is homeschooling better than traditional schooling?",
+            "Should standardized testing be abolished?",
+            "Is a college degree necessary for success?",
+            "Should schools be responsible for teaching morality and ethics?",
+            "Should history classes be rewritten to remove bias?",
+            "Are single-sex schools better than co-ed schools?",
+            "Should students be graded on effort rather than results?",
+            "Is cancel culture a modern form of censorship?",
+            "Should public universities be tuition-free?",
+            "Should healthcare be a universal human right?",
+            "Is the anti-vaccine movement a threat to public health?",
+            "Should euthanasia be legalized?",
+            "Is the mental health crisis being taken seriously enough?",
+            "Should doctors be allowed to refuse treatment based on personal beliefs?",
+            "Should prescription drugs be more heavily regulated?",
+            "Is the pharmaceutical industry prioritizing profit over people?",
+            "Should alternative medicine be integrated into mainstream healthcare?",
+            "Are fitness and wellness trends doing more harm than good?",
+            "Should organ donation be mandatory after death?",
+            "Should extreme wealth be considered immoral?",
+            "Is lying ever ethically justifiable?",
+            "Should people be forced to donate unused food?",
+            "Is keeping animals in zoos ethical?",
+            "Should religion have a role in government decisions?",
+            "Is it ethical to genetically engineer babies?",
+            "Should celebrities be held to a higher moral standard?",
+            "Are humans inherently selfish or altruistic?",
+            "Is censorship ever justified?",
+            "Should we have the right to control how we are remembered after death?"
+        ];
+
+        let usedPrompts = [];
+        const promptElement = document.getElementById('prompt');
+        const doneMessage = document.getElementById('doneMessage');
+        const imageBox = document.getElementById('imageBox');
+        const overlay = document.getElementById('overlay');
+        const logoContainer = document.getElementById('logoContainer');
+
+        function typeEffect(text, callback) {
+            let i = 0;
+            promptElement.textContent = ''; // Clear previous text
+
+            function typeNextChar() {
+                if (i < text.length) {
+                    promptElement.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(typeNextChar, 15); // Faster typing speed
+                } else if (callback) {
+                    setTimeout(callback, text.length * 15); // Pause before deleting (faster deletion speed)
+                }
+            }
+            typeNextChar();
+        }
+
+        function deleteEffect(callback) {
+            let text = promptElement.textContent;
+
+            function deleteNextChar() {
+                if (text.length > 0) {
+                    text = text.slice(0, -1);
+                    promptElement.textContent = text;
+                    setTimeout(deleteNextChar, 5); // Faster deletion speed
+                } else if (callback) {
+                    callback();
+                }
+            }
+            deleteNextChar();
+        }
+
+        function getRandomPrompt() {
+            if (usedPrompts.length === prompts.length) {
+                doneMessage.style.display = 'block';
+                return;
+            }
+
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * prompts.length);
+            } while (usedPrompts.includes(randomIndex));
+
+            usedPrompts.push(randomIndex);
+
+            deleteEffect(() => {
+                typeEffect(prompts[randomIndex]);
+            });
+        }
+
+        getRandomPrompt(); // Load initial prompt
+
+        imageBox.addEventListener('click', getRandomPrompt);
+
+        logoContainer.addEventListener('click', function () {
+            logoContainer.classList.add('clicked');
+            overlay.style.opacity = 1;
+            overlay.style.pointerEvents = 'auto';
+
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 800);
+        });
+    </script>
+
+</body>
+</html>
